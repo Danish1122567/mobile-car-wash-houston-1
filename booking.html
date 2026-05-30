@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Book a mobile car wash or detailing service with Bleenz Car Wash in Houston. Choose your service, pick a date and time, and we come to you.">
+  <title>Book a Service | Bleenz Car Wash Houston</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── BOOKING PAGE STYLES ── */
+    :root {
+      --brand:       #1a73e8;
+      --brand-dark:  #1558b0;
+      --accent:      #f59e0b;
+      --success:     #16a34a;
+      --danger:      #dc2626;
+      --bg:          #f8fafc;
+      --card-bg:     #ffffff;
+      --border:      #e2e8f0;
+      --text:        #1e293b;
+      --muted:       #64748b;
+      --radius:      12px;
+      --shadow:      0 4px 20px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .progress-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: calc(50% + 18px);
+      right: calc(-50% + 18px);
+      height: 2px;
+      background: var(--border);
+      transition: background .3s;
+    }
+    .step-item.done:not(:last-child)::after,
+    .step-item.active:not(:last-child)::after {
+      background: var(--brand);
+    }
+    .step-circle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .3s, color .3s;
+      position: relative;
+      z-index: 1;
+    }
+    .step-item.active .step-circle {
+      background: var(--brand);
+      color: #fff;
+    }
+    .step-item.done .step-circle {
+      background: var(--success);
+      color: #fff;
+    }
+    .step-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .step-item.active .step-label { color: var(--brand); }
+    .step-item.done .step-label  { color: var(--success); }
+
+    /* ── MAIN LAYOUT ── */
+    .booking-wrap {
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+    }
+
+    /* ── STEP PANELS ── */
+    .step-panel {
+      display: none;
+      animation: fadeIn .35s ease;
+    }
+    .step-panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .panel-sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* ── SERVICE CARDS ── */
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 500px) { .service-grid { grid-template-columns: 1fr; } }
+
+    .svc-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      background: var(--card-bg);
+      position: relative;
+    }
+    .svc-card:hover {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(26,115,232,.1);
+    }
+    .svc-card.selected {
+      border-color: var(--brand);
+      background: #eef4ff;
+    }
+    .svc-card .check {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      font-size: 11px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .svc-card.selected .check { display: flex; }
+    .svc-name {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .svc-price {
+      color: var(--brand);
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .svc-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── ADD-ONS ── */
+    .addon-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 500px) { .addon-group { grid-template-columns: 1fr; } }
+
+    .addon-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: var(--card-bg);
+    }
+    .addon-item:hover { border-color: var(--brand); }
+    .addon-item.selected {
+      border-color: var(--brand);
+      background: #eef4ff;
+    }
+    .addon-item input[type="checkbox"] { display: none; }
+    .addon-box {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: border-color .2s, background .2s;
+    }
+    .addon-item.selected .addon-box {
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+    .addon-item.selected .addon-box::after {
+      content: '✓';
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .addon-text { flex: 1; }
+    .addon-name { font-size: 14px; font-weight: 600; }
+    .addon-price { font-size: 13px; color: var(--brand); font-weight: 600; }
+
+    /* ── FORM FIELDS ── */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+    .form-full { margin-bottom: 16px; }
+
+    .field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .field-label span { color: var(--danger); }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(26,115,232,.12);
+    }
+    .form-input.error, .form-select.error { border-color: var(--danger); }
+    .error-msg {
+      color: var(--danger);
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+    .form-textarea { resize: vertical; min-height: 90px; }
+
+    /* ── TIME SLOTS ── */
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 480px) { .time-grid { grid-template-columns: repeat(3, 1fr); } }
+    .time-slot {
+      padding: 10px 6px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: border-color .2s, background .2s;
+      background: #fff;
+    }
+    .time-slot:hover { border-color: var(--brand); }
+    .time-slot.selected {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    /* ── SUMMARY CARD ── */
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .summary-title {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      padding: 6px 0;
+    }
+    .summary-row .label { color: var(--muted); }
+    .summary-row .val { font-weight: 600; }
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 17px;
+      font-weight: 800;
+      padding-top: 14px;
+      margin-top: 10px;
+      border-top: 2px solid var(--border);
+    }
+    .summary-total .val { color: var(--brand); font-size: 20px; }
+
+    /* ── PAYMENT OPTIONS ── */
+    .payment-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 500px) { .payment-grid { grid-template-columns: 1fr; } }
+    .pay-option {
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: border-color .2s, background .2s;
+      background: #fff;
+    }
+    .pay-option:hover { border-color: var(--brand); }
+    .pay-option.selected {
+      border-color: var(--brand);
+      background: #eef4ff;
+    }
+    .pay-option i { font-size: 20px; color: var(--brand); width: 24px; text-align: center; }
+
+    /* ── NAVIGATION BUTTONS ── */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      margin-top: 28px;
+    }
+    .btn-back {
+      padding: 13px 28px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .btn-back:hover { border-color: var(--brand); }
+    .btn-next {
+      flex: 1;
+      padding: 13px 28px;
+      border: none;
+      border-radius: 8px;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    .btn-next:hover { background: var(--brand-dark); }
+    .btn-next:active { transform: scale(.98); }
+    .btn-next:disabled { background: var(--border); cursor: not-allowed; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: var(--success);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background .2s;
+      margin-top: 10px;
+    }
+    .btn-submit:hover { background: #15803d; }
+
+    /* ── SUCCESS SCREEN ── */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .success-screen.active { display: block; }
+    .success-icon {
+      width: 80px; height: 80px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      color: var(--success);
+      margin: 0 auto 20px;
+    }
+    .success-screen h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    .success-screen p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 440px;
+      margin: 0 auto 30px;
+      line-height: 1.7;
+    }
+    .confirm-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 440px;
+      margin: 0 auto 32px;
+      text-align: left;
+    }
+    .confirm-box .row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 5px 0;
+    }
+    .confirm-box .row .lbl { color: var(--muted); }
+    .confirm-box .row .val { font-weight: 600; }
+    .btn-home {
+      display: inline-block;
+      padding: 13px 36px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+    }
+
+    /* ── MISC ── */
+    .section-divider {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: 22px 0 12px;
+    }
+    .notice {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #92400e;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .notice i { margin-top: 2px; flex-shrink: 0; }
+  </style>
+</head>
+<body data-page="booking">
+
+  <!-- NAVBAR (same as site) -->
+  <header class="site-header">
+    <nav class="navbar" aria-label="Primary navigation">
+      <a class="logo" href="index.html">Bleenz Car Wash</a>
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-menu" id="site-menu">
+        <a href="services.html">Services</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="about.html">About</a>
+        <a href="service-areas.html">Service Areas</a>
+        <a class="nav-button active" href="booking.html">Book Now</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO BANNER -->
+    <section class="hero page-hero" style="--hero-image: url('images/wash1.jpg')">
+      <div class="hero-content reveal">
+        <h1>Book Your Service</h1>
+        <p>Professional mobile detailing delivered to your door in Houston</p>
+      </div>
+    </section>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-wrap" id="progressBar">
+      <div class="progress-inner">
+        <div class="step-item active" id="prog1">
+          <div class="step-circle">1</div>
+          <span class="step-label">Service</span>
+        </div>
+        <div class="step-item" id="prog2">
+          <div class="step-circle">2</div>
+          <span class="step-label">Schedule</span>
+        </div>
+        <div class="step-item" id="prog3">
+          <div class="step-circle">3</div>
+          <span class="step-label">Details</span>
+        </div>
+        <div class="step-item" id="prog4">
+          <div class="step-circle">4</div>
+          <span class="step-label">Confirm</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-wrap">
+
+      <!-- ───── STEP 1: Choose Service ───── -->
+      <div class="step-panel active" id="step1">
+        <h2 class="panel-title">Choose Your Service</h2>
+        <p class="panel-sub">Select the service that best fits your needs.</p>
+
+        <div class="service-grid" id="serviceGrid">
+          <!-- populated by JS -->
+        </div>
+
+        <p class="section-divider">Add-On Services (Optional)</p>
+        <div class="addon-group" id="addonGroup">
+          <!-- populated by JS -->
+        </div>
+
+        <div class="btn-row">
+          <div></div>
+          <button class="btn-next" id="next1" onclick="goStep(2)">Continue &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ───── STEP 2: Schedule ───── -->
+      <div class="step-panel" id="step2">
+        <h2 class="panel-title">Pick a Date &amp; Time</h2>
+        <p class="panel-sub">We're available 7 days a week, 8 AM – 7 PM.</p>
+
+        <div class="form-full">
+          <label class="field-label" for="bookDate">Date <span>*</span></label>
+          <input class="form-input" type="date" id="bookDate" name="bookDate">
+          <p class="error-msg" id="dateErr">Please select a date.</p>
+        </div>
+
+        <p class="section-divider">Available Time Slots</p>
+        <div class="time-grid" id="timeGrid">
+          <!-- populated by JS -->
+        </div>
+        <p class="error-msg" id="timeErr">Please select a time slot.</p>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goStep(1)">&larr; Back</button>
+          <button class="btn-next" onclick="goStep(3)">Continue &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ───── STEP 3: Your Details ───── -->
+      <div class="step-panel" id="step3">
+        <h2 class="panel-title">Your Information</h2>
+        <p class="panel-sub">Tell us about yourself and your vehicle.</p>
+
+        <div class="form-row">
+          <div>
+            <label class="field-label" for="firstName">First Name <span>*</span></label>
+            <input class="form-input" type="text" id="firstName" placeholder="John">
+            <p class="error-msg" id="firstNameErr">Required.</p>
+          </div>
+          <div>
+            <label class="field-label" for="lastName">Last Name <span>*</span></label>
+            <input class="form-input" type="text" id="lastName" placeholder="Smith">
+            <p class="error-msg" id="lastNameErr">Required.</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label class="field-label" for="phone">Phone <span>*</span></label>
+            <input class="form-input" type="tel" id="phone" placeholder="(713) 000-0000">
+            <p class="error-msg" id="phoneErr">Enter a valid phone number.</p>
+          </div>
+          <div>
+            <label class="field-label" for="email">Email <span>*</span></label>
+            <input class="form-input" type="email" id="email" placeholder="you@email.com">
+            <p class="error-msg" id="emailErr">Enter a valid email.</p>
+          </div>
+        </div>
+
+        <div class="form-full">
+          <label class="field-label" for="address">Service Address <span>*</span></label>
+          <input class="form-input" type="text" id="address" placeholder="123 Main St, Houston, TX 77001">
+          <p class="error-msg" id="addressErr">Please enter your address.</p>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label class="field-label" for="vehicleMake">Vehicle Make <span>*</span></label>
+            <input class="form-input" type="text" id="vehicleMake" placeholder="Toyota">
+            <p class="error-msg" id="makeErr">Required.</p>
+          </div>
+          <div>
+            <label class="field-label" for="vehicleModel">Model &amp; Year <span>*</span></label>
+            <input class="form-input" type="text" id="vehicleModel" placeholder="Camry 2022">
+            <p class="error-msg" id="modelErr">Required.</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label class="field-label" for="vehicleColor">Vehicle Color</label>
+            <input class="form-input" type="text" id="vehicleColor" placeholder="White">
+          </div>
+          <div>
+            <label class="field-label" for="vehicleSize">Vehicle Size <span>*</span></label>
+            <select class="form-select" id="vehicleSize">
+              <option value="">Select size…</option>
+              <option>Sedan / Coupe</option>
+              <option>SUV / Crossover</option>
+              <option>Truck</option>
+              <option>Van / Minivan</option>
+              <option>Large Truck / SUV</option>
+              <option>Sports Car / Exotic</option>
+            </select>
+            <p class="error-msg" id="sizeErr">Please select vehicle size.</p>
+          </div>
+        </div>
+
+        <div class="form-full">
+          <label class="field-label" for="notes">Special Notes</label>
+          <textarea class="form-textarea" id="notes" placeholder="Any special instructions, gate codes, parking info…"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goStep(2)">&larr; Back</button>
+          <button class="btn-next" onclick="goStep(4)">Review Booking &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ───── STEP 4: Review & Confirm ───── -->
+      <div class="step-panel" id="step4">
+        <h2 class="panel-title">Review &amp; Confirm</h2>
+        <p class="panel-sub">Check your details before confirming.</p>
+
+        <div class="summary-card">
+          <div class="summary-title">Booking Summary</div>
+          <div id="summaryContent">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <p class="section-divider">Payment Method</p>
+        <div class="notice">
+          <i class="fa-solid fa-circle-info"></i>
+          Payment is collected on-site after the service is completed.
+        </div>
+        <div class="payment-grid">
+          <div class="pay-option selected" onclick="selectPay(this, 'Cash')">
+            <i class="fa-solid fa-money-bill-wave"></i> Cash
+          </div>
+          <div class="pay-option" onclick="selectPay(this, 'PayPal')">
+            <i class="fa-brands fa-paypal"></i> PayPal
+          </div>
+          <div class="pay-option" onclick="selectPay(this, 'Visa')">
+            <i class="fa-brands fa-cc-visa"></i> Visa
+          </div>
+          <div class="pay-option" onclick="selectPay(this, 'Mastercard')">
+            <i class="fa-brands fa-cc-mastercard"></i> Mastercard
+          </div>
+        </div>
+
+        <div class="btn-row" style="flex-direction: column;">
+          <button class="btn-submit" onclick="submitBooking()">
+            <i class="fa-solid fa-calendar-check"></i>&nbsp; Confirm Booking
+          </button>
+          <button class="btn-back" style="width:100%;text-align:center;margin-top:10px;" onclick="goStep(3)">&larr; Edit Details</button>
+        </div>
+      </div>
+
+      <!-- ───── SUCCESS SCREEN ───── -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+        <h2>Booking Confirmed! 🎉</h2>
+        <p>Thank you for choosing Bleenz Car Wash! We'll contact you shortly to confirm your appointment.</p>
+        <div class="confirm-box" id="confirmBox">
+          <!-- filled by JS -->
+        </div>
+        <a href="index.html" class="btn-home"><i class="fa-solid fa-house"></i> Back to Home</a>
+      </div>
+
+    </div><!-- /booking-wrap -->
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <a class="logo" href="index.html">Bleenz Car Wash</a>
+        <p>Houston's Cleanest Mobile Detailing</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://instagram.com/YOUR_HANDLE" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://www.tiktok.com/" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+      </div>
+      <div>
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="service-areas.html">Service Areas</a></li>
+          <li><a href="booking.html">Book Now</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Hours &amp; Payment</h2>
+        <p>Mon–Sun: 8:00 AM – 7:00 PM</p>
+        <p>Same-day booking available</p>
+        <p>Accepted: Cash · PayPal · Visa · MasterCard</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Bleenz Car Wash. All Rights Reserved.</p>
+      <p>We are a booking platform connecting customers with independent local service professionals.</p>
+    </div>
+  </footer>
+
+  <div class="floating-buttons">
+    <a class="float-btn messenger" href="https://m.me/YOUR_PAGE" target="_blank" rel="noopener" data-tooltip="Messenger"><i class="fa-brands fa-facebook-messenger"></i></a>
+    <a class="float-btn instagram" href="https://instagram.com/YOUR_HANDLE" target="_blank" rel="noopener" data-tooltip="Instagram"><i class="fa-brands fa-instagram"></i></a>
+  </div>
+  <div class="mobile-bottom-bar">
+    <a href="booking.html"><i class="fa-solid fa-calendar-check"></i> Book Now</a>
+    <a href="https://m.me/YOUR_PAGE" target="_blank" rel="noopener"><i class="fa-brands fa-facebook-messenger"></i> Message Us</a>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+  // ═══════════════════════════════════════════
+  //  BLEENZ CAR WASH — BOOKING SYSTEM JS
+  // ═══════════════════════════════════════════
+
+  const SERVICES = [
+    { id:'maintenance',     name:'Maintenance Detail',     price:45,  desc:'Exterior rinse, tire clean, hand dry' },
+    { id:'interior',        name:'Interior Detail',        price:75,  desc:'Full vacuum, dashboard polish, windows' },
+    { id:'exterior',        name:'Exterior Detail',        price:90,  desc:'Hand wash, clay bar, tire shine' },
+    { id:'full',            name:'Full Detail',            price:120, desc:'Interior + exterior deep clean + wax' },
+    { id:'washwax',         name:'Wash & Wax',             price:100, desc:'Full wash + hand wax, UV protection' },
+    { id:'paint1',          name:'1-Step Paint Correction',price:180, desc:'Light scratch removal, single-stage polish' },
+    { id:'paint2',          name:'2-Step Paint Correction',price:280, desc:'Heavy swirl/scratch removal, 2-stage polish' },
+    { id:'ceramic3',        name:'3-Year Ceramic Coating', price:350, desc:'Paint decon + 3-yr hydrophobic coating' },
+    { id:'ceramic6',        name:'6-Year Ceramic Coating', price:550, desc:'Full prep + 6-yr professional coating' },
+    { id:'ceramic10',       name:'10-Year Ceramic Coating',price:850, desc:'Complete correction + 10-yr premium coat' },
+    { id:'pressure',        name:'Pressure Washing',       price:60,  desc:'Driveway, patio, or undercarriage' },
+    { id:'soft',            name:'Soft Washing',           price:70,  desc:'Low-pressure, safe for delicate surfaces' },
+    { id:'engine',          name:'Engine Bay Cleaning',    price:80,  desc:'Degreaser, rinse, dry, dressing applied' },
+  ];
+
+  const ADDONS = [
+    { id:'pethair',    name:'Pet Hair Removal',     price:30 },
+    { id:'shampoo',    name:'Seat Shampoo',          price:40 },
+    { id:'odor',       name:'Odor Treatment',        price:35 },
+    { id:'headlight',  name:'Headlight Restoration', price:45 },
+  ];
+
+  const TIME_SLOTS = [
+    '8:00 AM','9:00 AM','10:00 AM','11:00 AM',
+    '12:00 PM','1:00 PM','2:00 PM','3:00 PM',
+    '4:00 PM','5:00 PM','6:00 PM','7:00 PM',
+  ];
+
+  let state = {
+    step: 1,
+    service: null,
+    addons: [],
+    date: '',
+    time: '',
+    payment: 'Cash',
+  };
+
+  // ─── Render Service Cards ─────────────────
+  function renderServices() {
+    const grid = document.getElementById('serviceGrid');
+    grid.innerHTML = SERVICES.map(s => `
+      <div class="svc-card" id="svc-${s.id}" onclick="selectService('${s.id}')">
+        <div class="check"><i class="fa-solid fa-check"></i></div>
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-price">From $${s.price}</div>
+        <div class="svc-desc">${s.desc}</div>
+      </div>
+    `).join('');
+
+    const ag = document.getElementById('addonGroup');
+    ag.innerHTML = ADDONS.map(a => `
+      <div class="addon-item" id="addon-${a.id}" onclick="toggleAddon('${a.id}')">
+        <div class="addon-box"></div>
+        <div class="addon-text">
+          <div class="addon-name">${a.name}</div>
+          <div class="addon-price">+$${a.price}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectService(id) {
+    document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('svc-' + id).classList.add('selected');
+    state.service = SERVICES.find(s => s.id === id);
+  }
+
+  function toggleAddon(id) {
+    const el = document.getElementById('addon-' + id);
+    const addon = ADDONS.find(a => a.id === id);
+    if (el.classList.contains('selected')) {
+      el.classList.remove('selected');
+      state.addons = state.addons.filter(a => a.id !== id);
+    } else {
+      el.classList.add('selected');
+      state.addons.push(addon);
+    }
+  }
+
+  // ─── Render Time Slots ────────────────────
+  function renderTimeSlots() {
+    const grid = document.getElementById('timeGrid');
+    grid.innerHTML = TIME_SLOTS.map(t => `
+      <div class="time-slot${state.time === t ? ' selected' : ''}" onclick="selectTime('${t}')">${t}</div>
+    `).join('');
+  }
+
+  function selectTime(t) {
+    state.time = t;
+    document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+    event.target.classList.add('selected');
+    document.getElementById('timeErr').classList.remove('visible');
+  }
+
+  // ─── Step Navigation ──────────────────────
+  function goStep(n) {
+    if (n > state.step && !validateStep(state.step)) return;
+    state.step = n;
+
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('step' + n)?.classList.add('active');
+
+    // update progress
+    for (let i = 1; i <= 4; i++) {
+      const prog = document.getElementById('prog' + i);
+      prog.classList.remove('active','done');
+      if (i < n) prog.classList.add('done');
+      else if (i === n) prog.classList.add('active');
+      // swap circle to checkmark when done
+      prog.querySelector('.step-circle').innerHTML =
+        i < n ? '<i class="fa-solid fa-check" style="font-size:13px"></i>' : i;
+    }
+
+    if (n === 4) renderSummary();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ─── Validation ───────────────────────────
+  function validateStep(n) {
+    if (n === 1) {
+      if (!state.service) {
+        alert('Please select a service to continue.');
+        return false;
+      }
+    }
+    if (n === 2) {
+      const d = document.getElementById('bookDate').value;
+      if (!d) {
+        document.getElementById('dateErr').classList.add('visible');
+        document.getElementById('bookDate').classList.add('error');
+        return false;
+      }
+      state.date = d;
+      if (!state.time) {
+        document.getElementById('timeErr').classList.add('visible');
+        return false;
+      }
+    }
+    if (n === 3) {
+      let ok = true;
+      const checks = [
+        ['firstName', 'firstNameErr', v => v.trim().length > 0],
+        ['lastName',  'lastNameErr',  v => v.trim().length > 0],
+        ['phone',     'phoneErr',     v => /^\+?[\d\s\-().]{7,}$/.test(v)],
+        ['email',     'emailErr',     v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)],
+        ['address',   'addressErr',   v => v.trim().length > 5],
+        ['vehicleMake','makeErr',     v => v.trim().length > 0],
+        ['vehicleModel','modelErr',   v => v.trim().length > 0],
+        ['vehicleSize', 'sizeErr',    v => v !== ''],
+      ];
+      checks.forEach(([fid, eid, fn]) => {
+        const el = document.getElementById(fid);
+        const err = document.getElementById(eid);
+        if (!fn(el.value)) {
+          el.classList.add('error');
+          err.classList.add('visible');
+          ok = false;
+        } else {
+          el.classList.remove('error');
+          err.classList.remove('visible');
+        }
+      });
+      return ok;
+    }
+    return true;
+  }
+
+  // ─── Summary ──────────────────────────────
+  function renderSummary() {
+    const addonTotal = state.addons.reduce((s, a) => s + a.price, 0);
+    const total = (state.service?.price || 0) + addonTotal;
+    const dateStr = state.date
+      ? new Date(state.date + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+      : '—';
+
+    let rows = `
+      <div class="summary-row"><span class="label">Service</span><span class="val">${state.service?.name || '—'}</span></div>
+      <div class="summary-row"><span class="label">Base Price</span><span class="val">From $${state.service?.price || 0}</span></div>
+    `;
+    if (state.addons.length) {
+      state.addons.forEach(a => {
+        rows += `<div class="summary-row"><span class="label">Add-on: ${a.name}</span><span class="val">+$${a.price}</span></div>`;
+      });
+    }
+    rows += `
+      <div class="summary-row"><span class="label">Date</span><span class="val">${dateStr}</span></div>
+      <div class="summary-row"><span class="label">Time</span><span class="val">${state.time}</span></div>
+      <div class="summary-row"><span class="label">Address</span><span class="val">${document.getElementById('address').value}</span></div>
+      <div class="summary-row"><span class="label">Vehicle</span><span class="val">${document.getElementById('vehicleMake').value} ${document.getElementById('vehicleModel').value}</span></div>
+      <div class="summary-total"><span>Estimated Total</span><span class="val">From $${total}</span></div>
+    `;
+    document.getElementById('summaryContent').innerHTML = rows;
+  }
+
+  // ─── Payment ──────────────────────────────
+  function selectPay(el, method) {
+    document.querySelectorAll('.pay-option').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    state.payment = method;
+  }
+
+  // ─── Submit ───────────────────────────────
+  function submitBooking() {
+    const addonTotal = state.addons.reduce((s, a) => s + a.price, 0);
+    const total = (state.service?.price || 0) + addonTotal;
+    const name = document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value;
+    const dateStr = new Date(state.date + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
+
+    // Hide steps + progress
+    document.getElementById('progressBar').style.display = 'none';
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+
+    // Build confirmation box
+    document.getElementById('confirmBox').innerHTML = `
+      <div class="row"><span class="lbl">Name</span><span class="val">${name}</span></div>
+      <div class="row"><span class="lbl">Service</span><span class="val">${state.service.name}</span></div>
+      ${state.addons.map(a => `<div class="row"><span class="lbl">Add-on</span><span class="val">${a.name}</span></div>`).join('')}
+      <div class="row"><span class="lbl">Date & Time</span><span class="val">${dateStr} at ${state.time}</span></div>
+      <div class="row"><span class="lbl">Address</span><span class="val">${document.getElementById('address').value}</span></div>
+      <div class="row"><span class="lbl">Vehicle</span><span class="val">${document.getElementById('vehicleMake').value} ${document.getElementById('vehicleModel').value}</span></div>
+      <div class="row"><span class="lbl">Payment</span><span class="val">${state.payment}</span></div>
+      <div class="row" style="margin-top:10px;font-weight:700;font-size:15px;"><span class="lbl">Est. Total</span><span class="val" style="color:var(--success)">From $${total}</span></div>
+    `;
+
+    document.getElementById('successScreen').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ─── Date: set min to today ───────────────
+  function initDateField() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('bookDate').min = today;
+    document.getElementById('bookDate').addEventListener('change', function() {
+      state.date = this.value;
+      this.classList.remove('error');
+      document.getElementById('dateErr').classList.remove('visible');
+    });
+  }
+
+  // ─── Pre-select service from URL param ───
+  function checkUrlParam() {
+    const params = new URLSearchParams(window.location.search);
+    const svcId = params.get('service');
+    if (svcId) {
+      const match = SERVICES.find(s => s.id === svcId);
+      if (match) selectService(match.id);
+    }
+  }
+
+  // ─── Init ─────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    renderServices();
+    renderTimeSlots();
+    initDateField();
+    checkUrlParam();
+  });
+  </script>
+</body>
+</html>
